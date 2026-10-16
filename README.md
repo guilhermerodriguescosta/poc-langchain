@@ -10,6 +10,10 @@ O usuário anexa um documento e clica em **Gerar resumo**. A aplicação solicit
 
 Esta POC não inclui banco de dados, histórico persistente, login, RAG, embeddings ou modelos cloud. O processamento utiliza a memória, CPU/GPU e energia do computador.
 
+## Arquitetura
+
+Veja [DOCs/arquitetura.md](DOCs/arquitetura.md) para as visões C4 de contexto, contêineres e componentes, o fluxo de processamento e as decisões técnicas.
+
 ## Preparar o Ollama no Windows
 
 Instale pelo [site oficial](https://ollama.com/download/windows) ou pelo PowerShell:
