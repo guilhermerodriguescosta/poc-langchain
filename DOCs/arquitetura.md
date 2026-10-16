@@ -1,10 +1,10 @@
-# Arquitetura — POC LangChain + Ollama
+# Arquitetura — resumo de documentos
 
 ## Objetivo e escopo
 
-A POC permite anexar um documento TXT, PDF textual ou DOCX e gerar um resumo com os pontos principais em português. O objetivo é estudar extração de texto, prompts e composição de fluxos com LangChain, executando o modelo localmente pelo Ollama.
+A aba **Resumo** da POC recebe um documento TXT, PDF textual ou DOCX e gera um resumo com os pontos principais. Este documento descreve apenas esse fluxo: extração de texto, prompts e composição com LangChain, usando Ollama local. A avaliação de currículos está documentada em [arquitetura-rag.md](arquitetura-rag.md).
 
-Este documento descreve o código atual. Instalação, execução e critérios de aceite estão no [README](../README.md). Os desenhos representam a estrutura da solução, não indicam se os serviços estão em execução.
+Instalação, execução e critérios de aceite estão no [README](../README.md). Os desenhos representam o fluxo de resumo no código atual; não indicam se os serviços estão em execução.
 
 ## Como ler os diagramas
 
@@ -189,7 +189,7 @@ O modelo e a consolidação podem omitir detalhes ou produzir informações inco
 
 Os [testes automatizados](../tests/) cobrem extração, limites, Unicode, processamento integral de texto de 10 MB com modelo simulado, redução em níveis, erros e interface. A inferência real exige validação manual com Ollama e modelo disponíveis; o roteiro está no README.
 
-Atualize este documento no mesmo conjunto de alterações que modificar fronteiras, componentes, integrações, configuração ou estratégia de resumo. As três visões usam a mesma fronteira de sistema. Esta primeira documentação não inclui um diagrama de nível 4, de código; os links às implementações permitem consultar esse detalhamento diretamente.
+Atualize este documento no mesmo conjunto de alterações que modificar fronteiras, componentes, integrações, configuração ou estratégia de resumo. As três visões usam a mesma fronteira de sistema. Não há diagrama de nível 4, de código; os links às implementações permitem consultar esse detalhamento diretamente.
 
 ## Referências
 

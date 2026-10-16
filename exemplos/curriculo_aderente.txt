@@ -1,0 +1,7 @@
+CURRICULO FICTICIO - EXEMPLO PARA TESTE
+
+Marina, Product Manager Senior.
+Liderei por quatro anos a visao, discovery e roadmap de produtos digitais de pagamento, incluindo resultados apos o lancamento.
+Fui responsavel pela evolucao do Pix para lojistas com QR Code e liquidacao.
+Defini metricas de conversao e sucesso das transacoes e usei os dados para priorizar melhorias.
+Trabalhei com engenharia, negocio, risco e compliance para entregar mudancas regulatorias de pagamentos.

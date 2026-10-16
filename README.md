@@ -1,18 +1,18 @@
-# POC LangChain + Ollama: resumo de documentos
+# POC LangChain + Ollama: resumo de documentos e RAG
 
-Página Streamlit que recebe TXT, PDF ou DOCX e gera **Resumo** e **Pontos principais** em português com um modelo local. Sem chave OpenAI ou tarifa de API. Depois da instalação e do download do modelo, a inferência pode funcionar sem internet.
+Página Streamlit que recebe TXT, PDF ou DOCX para **resumir documentos** ou **avaliar um currículo com RAG** em português, usando modelos locais. Sem chave OpenAI ou tarifa de API. Depois da instalação e do download dos modelos, a inferência pode funcionar sem internet.
 
 ## Objetivo e funcionamento
 
-Estudar o fluxo básico do LangChain: upload, extração de texto, construção do prompt, execução do modelo e apresentação da resposta.
+Estudar o fluxo básico do LangChain e, em uma segunda tela, embeddings, recuperação de trechos de uma vaga simulada e análise orientativa de currículo.
 
 O usuário anexa um documento e clica em **Gerar resumo**. A aplicação solicita um parágrafo conciso e até cinco pontos principais em português, usando apenas os fatos do texto. O prompt trata o documento como referência e orienta o modelo a ignorar instruções contidas nele. O resultado deve ser revisado, pois o modelo pode omitir ou inventar informações.
 
-Esta POC não inclui banco de dados, histórico persistente, login, RAG, embeddings ou modelos cloud. O processamento utiliza a memória, CPU/GPU e energia do computador.
+Na avaliação, a vaga fixa está em [`vaga_pm_pix_getnet_simulada.md`](vaga_pm_pix_getnet_simulada.md). Ela é fictícia e não representa uma seleção oficial da Getnet. O currículo e o índice vetorial ficam em memória durante a sessão, sem banco de dados ou histórico persistente. Não há login nem modelos cloud.
 
 ## Arquitetura
 
-Veja [DOCs/arquitetura.md](DOCs/arquitetura.md) para as visões C4 de contexto, contêineres e componentes, o fluxo de processamento e as decisões técnicas.
+Veja a arquitetura do [resumo de documentos](DOCs/arquitetura.md) e a arquitetura da [avaliação com RAG](DOCs/arquitetura-rag.md). Cada documento traz as visões C4, o fluxo de processamento e as decisões técnicas da respectiva funcionalidade.
 
 ## Preparar o Ollama no Windows
 
@@ -26,6 +26,7 @@ Abra um novo terminal, inicie o aplicativo Ollama e baixe o modelo:
 
 ```powershell
 ollama pull llama3.2:3b
+ollama pull embeddinggemma
 ollama list
 ```
 
@@ -41,7 +42,9 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Acesse <http://127.0.0.1:8501>. Anexe `exemplos/documento.txt` e clique em **Gerar resumo**. Confira se o resultado menciona horário aos sábados, prazo e limite de empréstimos e avaliação após três meses. Repita com PDF textual e DOCX.
+Acesse <http://127.0.0.1:8501>. Na aba **Resumo**, anexe `exemplos/documento.txt` e clique em **Gerar resumo**. Confira se o resultado menciona horário aos sábados, prazo e limite de empréstimos e avaliação após três meses. Repita com PDF textual e DOCX.
+
+Na aba **Avaliação com RAG**, anexe um currículo TXT, PDF textual ou DOCX e clique em **Avaliar candidato**. A aplicação gera embeddings para as seções da vaga, consulta o índice em memória e mostra os trechos recuperados. Para cada requisito, solicita ao modelo uma citação literal do currículo e confirma que ela aparece no texto extraído. O resultado apresenta visão geral, aderência, pontos positivos, lacunas e um veredito orientativo. **Avançar** exige evidência para os quatro requisitos essenciais; sem ela, a recomendação é **Recusar**, com a lacuna marcada como **não comprovada**. Diferenciais não eliminam. A decisão final cabe a uma pessoa.
 
 O arquivo `.env` é opcional. Para experimentar um modelo mais leve:
 
@@ -59,6 +62,7 @@ A POC usa CPU por padrão (`OLLAMA_NUM_GPU=0`). Nesta máquina, a tentativa com 
 1. `app.py`: upload e interação; selecionar o arquivo não chama o modelo.
 2. `documents.py`: converte os bytes em texto na memória.
 3. `summarizer.py`: monta o prompt, chama `ChatOllama` e extrai a resposta.
+4. `candidate_evaluator.py`: indexa a vaga com `OllamaEmbeddings` e `InMemoryVectorStore`, recupera trechos e verifica citações do currículo antes de calcular o veredito.
 
 O operador `|` conecta as etapas em `PROMPT | model | StrOutputParser()`. `chain.invoke({"document": text})` insere o texto no prompt, executa o modelo e devolve uma string. Usamos os pacotes modulares `langchain-core` e `langchain-ollama`, suficientes para esse fluxo.
 
@@ -75,6 +79,8 @@ A extração utiliza `pypdf` para PDF, `python-docx` para parágrafos e tabelas 
 - Exibir mensagens claras para Ollama indisponível, modelo ausente, timeout, falha de inferência, resposta vazia ou impossibilidade de compactar os resumos intermediários.
 - Manter anexos em memória e resultado apenas na sessão; limpar o resumo anterior ao trocar o documento.
 - Validar extração, fluxo LangChain e interface com testes automatizados independentes do Ollama.
+- Na avaliação, recuperar e exibir trechos da vaga, mostrar evidência literal por requisito essencial e aplicar o veredito binário definido acima.
+- Não usar dados pessoais ou atributos sem relação com as competências da vaga para justificar o parecer.
 
 ## Testes
 
@@ -96,6 +102,7 @@ A cobertura inclui os três formatos, Unicode e tabelas; documentos inválidos, 
 - Anexos não são gravados no disco; resultado somente na sessão Streamlit. O modelo permanece carregado por até cinco minutos de inatividade para acelerar as chamadas das partes.
 - Ollama indisponível: abra o aplicativo ou execute `ollama serve`.
 - Modelo ausente: execute `ollama pull` com o nome configurado em `OLLAMA_MODEL`.
+- Modelo de embeddings ausente: execute `ollama pull embeddinggemma` ou use `OLLAMA_EMBEDDING_MODEL` para outro modelo local compatível.
 - Lentidão ou falta de memória: feche aplicativos, reduza o documento ou experimente `llama3.2:1b`. Prazo da chamada: 300 segundos.
 
 ## Referências

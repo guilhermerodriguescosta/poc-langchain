@@ -6,6 +6,9 @@ from langchain_core.runnables import RunnableLambda
 from streamlit.testing.v1 import AppTest
 
 import summarizer
+import candidate_evaluator
+from candidate_evaluator import Evaluation, ESSENTIAL
+from langchain_core.documents import Document
 
 APP = Path(__file__).resolve().parents[1] / "app.py"
 
@@ -50,3 +53,31 @@ def test_connection_error_shows_recovery(screen, monkeypatch):
     screen.button[0].click().run()
     assert not screen.exception
     assert "ollama serve" in screen.error[0].value
+
+
+def test_evaluation_upload_result_and_replacement(monkeypatch):
+    def evaluate_fake(text, on_progress=None):
+        assert "Currículo" in text
+        return Evaluation("Recusar", {key: () for key in (*ESSENTIAL, "DIFERENCIAIS")},
+                          (Document(page_content="Trecho da vaga", metadata={"title": "Missão"}),))
+
+    monkeypatch.setattr(candidate_evaluator, "evaluate", evaluate_fake)
+    screen = AppTest.from_file(str(APP)).run()
+    assert screen.button[1].disabled
+    screen.file_uploader[1].upload("cv.txt", "Currículo fictício".encode(), "text/plain").run()
+    assert not screen.button[1].disabled
+    screen.button[1].click().run()
+    assert not screen.exception
+    assert any("Recusar" in item.value for item in screen.markdown)
+    assert "evaluation" in screen.session_state
+    screen.file_uploader[1].upload("outro.txt", "Outro currículo".encode(), "text/plain").run()
+    assert "evaluation" not in screen.session_state
+
+
+def test_invalid_curriculum_shows_error_without_inference(monkeypatch):
+    monkeypatch.setattr(candidate_evaluator, "evaluate", lambda *_args, **_kwargs: pytest.fail("Não deveria chamar o modelo"))
+    screen = AppTest.from_file(str(APP)).run()
+    screen.file_uploader[1].upload("vazio.txt", b"", "text/plain").run()
+    screen.button[1].click().run()
+    assert not screen.exception
+    assert "vazio" in screen.error[0].value
