@@ -1,0 +1,12 @@
+Projeto Biblioteca do Bairro
+
+A biblioteca do bairro vai abrir aos sábados a partir de novembro. O atendimento
+será das 9h às 13h. O objetivo é permitir que moradores que trabalham durante a
+semana também possam pegar livros emprestados.
+
+O empréstimo será gratuito e terá duração de 14 dias. Cada pessoa poderá retirar
+até dois livros por vez, mediante cadastro presencial. A devolução poderá ser
+feita em qualquer dia de funcionamento da biblioteca.
+
+O projeto terá uma avaliação após três meses. A equipe vai acompanhar o número
+de visitantes e de empréstimos aos sábados para decidir se mantém o novo horário.
